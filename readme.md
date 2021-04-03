@@ -12,10 +12,16 @@ Since clients for all platforms (SmartTV, browsers, set top boxes) will use same
 
 import {client, initPayload, playPayload, errorPayload} from "@vot/client";
 
-client({url:"https://vot.io"});
-client.sendPlayerEvent(initPayload("https://cutt.ly/pclAuLA"));
-client.sendPlayerEvent(playPayload());
-client.sendPlayerEvent(errorPayload(404, "file not found"));
-client.close();
+const playerBigStat = client({url:"https://vot.io"});
+playerBigStat.sendPlayerEvent(initPayload("https://cutt.ly/pclAuLA"));
+playerBigStat.sendPlayerEvent(playPayload());
+playerBigStat.sendPlayerEvent(errorPayload(404, "file not found"));
+playerBigStat.close();
+
+const playerSmallStat = client({url:"https://vot.io"});
+playerSmallStat.sendPlayerEvent(initPayload("https://cutt.ly/pclAuLA"));
+playerSmallStat.sendPlayerEvent(playPayload());
+playerSmallStat.sendPlayerEvent(errorPayload(404, "file not found"));
+playerSmallStat.close();
 
 ```
