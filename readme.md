@@ -18,7 +18,7 @@ playerBigStat.sendPlayerEvent(playPayload());
 playerBigStat.sendPlayerEvent(errorPayload(404, "file not found"));
 playerBigStat.close();
 
-const playerSmallStat = client({url:"https://vot.io"});
+const playerSmallStat = client({url:"https://vot.io", playerId: "small"});
 playerSmallStat.sendPlayerEvent(initPayload("https://cutt.ly/pclAuLA"));
 playerSmallStat.sendPlayerEvent(playPayload());
 playerSmallStat.sendPlayerEvent(errorPayload(404, "file not found"));

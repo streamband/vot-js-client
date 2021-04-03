@@ -2,6 +2,7 @@ import Websocket from "ws";
 
 interface VotClientParams {
   url: string;
+  playerId?: string;
 }
 
 enum ConnectionStates {
@@ -50,15 +51,22 @@ interface PlayerErrorEventPayload {
   m: string;
 }
 
-type PlayerEventPayload = PlayerSimpleEventPayload | PlayerErrorEventPayload | PlayerInitEventPayload;
+type PlayerEventPayload =
+  | PlayerSimpleEventPayload
+  | PlayerErrorEventPayload
+  | PlayerInitEventPayload;
 
-enum SystemEvent {}
-
-interface SystemEventPayload {
-  e: SystemEvent;
-  c: number;
-  m: string;
+enum SystemEvent {
+  init_session = 0,
 }
+
+interface SystemInitEventPayload {
+  e: SystemEvent.init_session;
+  p: string; //playerId
+  u: string; //vot connection string (will be useful in case of white-labeling)
+}
+
+type SystemEventPayload = SystemInitEventPayload;
 
 type SystemMessage = Message<MessageTypes.sys_event, SystemEventPayload>;
 type PlayerMessage = Message<MessageTypes.player_event, PlayerEventPayload>;
@@ -98,8 +106,24 @@ export function pausePayload(): PlayerSimpleEventPayload {
 export const vot = (params: VotClientParams) => {
   const ws = new Websocket(params.url, {});
   let state = ConnectionStates.CONNECTING;
-
   let queue: (SystemMessage | PlayerMessage | CloseMessage)[] = [];
+
+  const send = (message: SystemMessage | PlayerMessage | CloseMessage) => {
+    if (state === ConnectionStates.CONNECTED) {
+      ws.send(message);
+    } else {
+      queue.push(message);
+    }
+  };
+
+  send({
+    e: MessageTypes.sys_event,
+    p: {
+      e: SystemEvent.init_session,
+      p: params.playerId || "default",
+      u: params.url,
+    },
+  });
 
   ws.on("open", () => {
     state = ConnectionStates.CONNECTED;
@@ -116,14 +140,6 @@ export const vot = (params: VotClientParams) => {
     state = ConnectionStates.DISCONNECTED;
   });
 
-  const send = (message: SystemMessage | PlayerMessage | CloseMessage) => {
-    if (state === ConnectionStates.CONNECTED) {
-      ws.send(message);
-    } else {
-      queue.push(message);
-    }
-  };
-
   ws.on("error", (err) => {
     console.error(err);
   });
@@ -135,8 +151,5 @@ export const vot = (params: VotClientParams) => {
     },
     sendPlayerEvent: (payload: PlayerEventPayload) =>
       send({ e: MessageTypes.player_event, p: payload }),
-    sendSystemEvent: (payload: SystemEventPayload) => {
-      send({ e: MessageTypes.sys_event, p: payload });
-    },
   };
 };
