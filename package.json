@@ -1,12 +1,14 @@
 {
-  "name": "client",
-  "version": "1.0.0",
+  "name": "@votjs/client",
+  "version": "0.2.0",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "author": "Sergey Bargamon <sergey@bargamon.ru>",
   "license": "MIT",
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "build": "tsc --build",
+    "prepack": "yarn build"
   },
   "devDependencies": {
     "@types/ws": "^7.4.1",

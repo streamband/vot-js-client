@@ -3,6 +3,8 @@ import Websocket from "ws";
 interface VotClientParams {
   url: string;
   playerId?: string;
+  userId?: string;
+  profileId?: string;
 }
 
 enum ConnectionStates {
@@ -43,6 +45,7 @@ interface PlayerSimpleEventPayload {
 interface PlayerInitEventPayload {
   e: PlayerEvent.init;
   u: string;
+  i?: string;
 }
 
 interface PlayerErrorEventPayload {
@@ -64,6 +67,8 @@ interface SystemInitEventPayload {
   e: SystemEvent.init_session;
   p: string; //playerId
   u: string; //vot connection string (will be useful in case of white-labeling)
+  i?: string; // userId
+  r?: string; // profileId
 }
 
 type SystemEventPayload = SystemInitEventPayload;
@@ -95,8 +100,11 @@ export function bufferingPayload(): PlayerSimpleEventPayload {
   return { e: PlayerEvent.buffering };
 }
 
-export function initPayload(url: string): PlayerInitEventPayload {
-  return { e: PlayerEvent.init, u: url };
+export function initPayload(
+  url: string,
+  contentId?: string
+): PlayerInitEventPayload {
+  return { e: PlayerEvent.init, u: url, i: contentId,  };
 }
 
 export function pausePayload(): PlayerSimpleEventPayload {
@@ -122,16 +130,18 @@ export const vot = (params: VotClientParams) => {
       e: SystemEvent.init_session,
       p: params.playerId || "default",
       u: params.url,
+      i: params.playerId,
+      r: params.profileId
     },
   });
 
   ws.on("open", () => {
     state = ConnectionStates.CONNECTED;
     if (queue.length) {
-      let message = queue.pop();
+      let message = queue.shift();
       while (message) {
         send(message);
-        message = queue.pop();
+        message = queue.shift();
       }
     }
   });
