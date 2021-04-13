@@ -14,7 +14,6 @@ jobs:
           node-version: '14.x'
       - run: yarn install --frozen-lockfile
       - run: yarn build
-      - run: yarn test
       - run: yarn pack --filename=package.tgz
       - name: Upload binary to release
         uses: svenstaro/upload-release-action@v2
