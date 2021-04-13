@@ -6,15 +6,6 @@ Base JavaScript implementation of VOT transport protocol
 
 Since clients for all platforms (SmartTV, browsers, set top boxes) will use same protocol we need base implementation.
 
-
-```
-yarn add @votjs/client
-```
-or 
-```
-npm add @votjs/client
-```
-
 ## Usage 
 
 ```sh
